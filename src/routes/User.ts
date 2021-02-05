@@ -2,7 +2,7 @@ import express, { Router, Response } from "express";
 
 const router = Router();
 
-router.post("/register", (req, res) => {
+router.get("/register", (req, res) => {
   res.json({ messgae: "work" });
 });
 
