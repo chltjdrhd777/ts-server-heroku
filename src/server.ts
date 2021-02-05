@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import cookieparser from "cookie-parser";
 import mongoose from "mongoose";
 const mongoDBAccessKey = require("./config/key");
+import userRoutes from "./routes/User";
 //initializing app
 const app = express();
 app.use(cors());
@@ -24,10 +25,14 @@ mongoose
   })
   .catch((err) => console.log(err));
 
+//routes
 app.get("/", (req, res) => {
   res.json({ message: "hello this is a test page" });
 });
 
+app.use("/users", userRoutes);
+
+//PORT
 app.listen(process.env.PORT || 5000, () => {
   console.log("listening port 5000, working");
 });
