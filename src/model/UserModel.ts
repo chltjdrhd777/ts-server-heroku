@@ -85,6 +85,19 @@ userSchema.pre<UserBaseDocumentType>("save", function (next) {
   }
 });
 
+userSchema.methods.comparePassword = function (plainPassword) {
+  let user = this as UserBaseDocumentType;
+  return bcrypt.compare(plainPassword, user.password);
+};
+
+userSchema.methods.generateToken = function () {
+  let user = this as UserBaseDocumentType;
+  let token = jwt.sign(user._id.toHexString(), "secret");
+  user.token = token;
+  user.save();
+  return Promise.resolve(user);
+};
+
 //export
 export default mongoose.model<UserBaseDocumentType, UserStatics>(
   "User",

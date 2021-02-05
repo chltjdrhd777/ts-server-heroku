@@ -22,4 +22,31 @@ router.post("/register", (req: CumstomRequest, res) => {
   });
 });
 
+router.post("/login", (req: CumstomRequest, res) => {
+  User.findOne({ email: req.body.email }).then((targetUser) => {
+    if (!targetUser) {
+      res.json({ loginstate: false, message: "there is no matched user" });
+    } else {
+      targetUser.comparePassword(req.body.password).then((result) => {
+        if (!result) {
+          res.json({ loginstate: false, message: "wrong password" });
+        } else {
+          targetUser.generateToken().then((tokenUpdatedUser) => {
+            if (!tokenUpdatedUser)
+              return res.json({
+                loginstate: false,
+                message: "Thoken is not updated successfully",
+              });
+
+            res
+              .cookie("authorized_user", tokenUpdatedUser.token)
+              .status(200)
+              .json({ loginstate: true, message: "login complete" });
+          });
+        }
+      });
+    }
+  });
+});
+
 export default router;
