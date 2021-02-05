@@ -1,12 +1,14 @@
-import express, { Router, Request, Response } from "express";
+import { CheckedUserType } from "./../middleware/auth";
+import { Router, Request, Response } from "express";
 import User, { UserBaseDocumentType } from "../model/UserModel";
+import { auth } from "../middleware/auth";
 
 const router = Router();
 
 //typeDef
-interface CumstomRequest extends Request<{}, {}, UserBaseDocumentType> {}
+export interface CustomRequest extends Request<{}, {}, UserBaseDocumentType> {}
 
-router.post("/register", (req: CumstomRequest, res) => {
+router.post("/register", (req: CustomRequest, res) => {
   if (!req.body.email || !req.body.password) {
     return res.json({
       success: false,
@@ -22,7 +24,7 @@ router.post("/register", (req: CumstomRequest, res) => {
   });
 });
 
-router.post("/login", (req: CumstomRequest, res) => {
+router.post("/login", (req: CustomRequest, res) => {
   User.findOne({ email: req.body.email }).then((targetUser) => {
     if (!targetUser) {
       res.json({ loginstate: false, message: "there is no matched user" });
@@ -47,6 +49,19 @@ router.post("/login", (req: CumstomRequest, res) => {
       });
     }
   });
+});
+
+router.get("/logout", auth, (req: CheckedUserType, res) => {
+  User.findOneAndUpdate(
+    { _id: req.checkedUser._id },
+    { token: "" },
+    { new: true },
+    (err, doc) => {
+      if (err)
+        res.json({ success: false, message: "you couldn't log out, lol" });
+      res.json({ success: true, message: "bye bye", doc });
+    }
+  );
 });
 
 export default router;

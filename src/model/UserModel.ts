@@ -98,6 +98,18 @@ userSchema.methods.generateToken = function () {
   return Promise.resolve(user);
 };
 
+userSchema.statics.findByToken = function (token, callback) {
+  let user = this;
+  jwt.verify(token, "secret", (err, decoded) => {
+    if (err) throw err;
+
+    user.findOne({ _id: decoded, token: token }, null, null, (err, doc) => {
+      if (err) throw err;
+      callback(doc);
+    });
+  });
+};
+
 //export
 export default mongoose.model<UserBaseDocumentType, UserStatics>(
   "User",
